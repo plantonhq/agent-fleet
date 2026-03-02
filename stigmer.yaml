@@ -1,0 +1,11 @@
+apiVersion: agentic.stigmer.ai/v1
+kind: Project
+metadata:
+  name: agent-fleet
+spec:
+  description: >
+    Stigmer-powered AI Agent Fleet for the Planton platform.
+    Defines specialized agents, skills, and an MCP server that enable
+    natural-language infrastructure provisioning, deployment troubleshooting,
+    environment composition, onboarding guidance, and CI/CD debugging
+    across Planton's multi-cloud infrastructure management layer.
