@@ -89,7 +89,7 @@ When starting a new session:
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 0 | Repository scaffold + Stigmer manifest | Done |
-| 1 | Planton MCP Server definition | Pending |
+| 1 | Planton MCP Server definition | In Progress |
 | 2 | Cloud Resource Assistant (agent + skill) | Pending |
 | 3 | Stack Job Troubleshooter (agent + skill) | Pending |
 | 4 | Infra Chart Composer (agent + skill) | Pending |
@@ -97,19 +97,69 @@ When starting a new session:
 | 6 | Service Pipeline Debugger (agent + skill) | Pending |
 | 7 | Tooling, automation, final README | Pending |
 
+## Session History
+
+### Session 2: Phase 1 Tool Script (2026-03-03)
+
+**Created the `stigmer draft mcp-server` tool script for Phase 1.**
+
+**What was delivered:**
+
+1. **`tools/00_create-planton-mcp-server.sh`** — Shell script that invokes `stigmer draft mcp-server` to generate the Planton Cloud McpServer YAML
+   - Workspace: Planton monorepo (for deep domain understanding)
+   - Spotlight attachments: `docs/product/infra-hub`, `docs/product/service-hub`, `what-is-a-planton-api-resource.md`
+   - Output: `mcp-servers/` directory
+   - Rich prompt covering server connection details, workspace exploration guidance, tool approval policies, and quality standards
+
+2. **Implementation plan** — `plans/phase-1-mcp-server-tool.plan.md`
+
+**Key Decisions Made:**
+- Workspace is Planton monorepo only (not mcp-server-planton) per user direction
+- Server connection details embedded in prompt message to compensate
+- `default_enabled_tools` left empty (all tools); each agent narrows via its own `enabled_tools`
+- `default_tool_approvals` includes 16 destructive operations with `{{args.field}}` placeholders
+- Post-generation discovery step verifies exact tool names
+- `PLANTON_REPO` env var override for portability
+
+**Files Changed/Created:**
+- `tools/00_create-planton-mcp-server.sh` — New tool script (Phase 1)
+- `_projects/20260302.01.stigmer-resources-for-planton/next-task.md` — Updated status
+- `_projects/20260302.01.stigmer-resources-for-planton/plans/` — Saved implementation plan
+
+---
+
+### Session 1: Repository Scaffold (2026-03-02)
+
+**Created the agent-fleet repository and project tracking structure (Phase 0).**
+
+---
+
 ## Current Status
 
 **Created**: 2026-03-02
-**Current Task**: T01 (Master Plan — Pending Review)
-**Status**: Planning — awaiting plan approval before Phase 1 execution
+**Current Task**: Phase 1 — Planton MCP Server Definition
+**Status**: In Progress — tool script created, awaiting manual execution of `./tools/00_create-planton-mcp-server.sh`
+
+**Current step:**
+- Done: Phase 0 — Repository scaffold + Stigmer manifest (2026-03-02)
+- Done: Phase 1 tool script created (2026-03-03)
+- Next: **Run tool script** to generate `mcp-servers/planton-cloud.yaml`, then review and validate
+
+## Objectives for Next Session
+
+**Option A (Recommended):** Execute `./tools/00_create-planton-mcp-server.sh`, review the generated McpServer YAML, validate with `stigmer apply --dry-run`, run discovery, and refine. Then proceed to Phase 2 (Cloud Resource Assistant).
+
+**Option B:** Skip to Phase 2 if the McpServer YAML was already generated and validated outside this workflow.
+
+**Option C:** Revise the tool script if the initial generation result needs prompt adjustments.
 
 ## Quick Commands
 
 After loading context:
-- "Continue with Phase 1" — Start the MCP Server definition
+- "Run Phase 1 tool" — Execute the MCP server generation script
+- "Continue to Phase 2" — Start Cloud Resource Assistant agent + skill
 - "Show project status" — Get overview of progress
 - "Create checkpoint" — Save current progress
-- "Review plan" — Re-examine the master plan
 
 ---
 
