@@ -1,0 +1,75 @@
+apiVersion: agentic.stigmer.ai/v1
+kind: McpServer
+metadata:
+  name: planton-cloud
+  org: default
+  labels:
+    category: cloud-infrastructure
+  tags:
+    - cloud
+    - infrastructure
+    - devops
+    - cicd
+    - kubernetes
+    - aws
+    - gcp
+    - azure
+    - planton
+spec:
+  description: >
+    Stateless MCP server that connects AI agents to the Planton Cloud platform,
+    translating MCP tool calls into gRPC requests against the Planton backend.
+    Covers the full product surface across 17 cloud providers (AWS, GCP, Azure,
+    Kubernetes, DigitalOcean, Civo, Cloudflare, AliCloud, Confluent, Auth0,
+    OpenFGA, Snowflake, MongoDB Atlas, Hetzner Cloud, OCI, OpenStack, Scaleway)
+    with 362 resource kinds and 100 tools spanning cloud resource lifecycle
+    (create, update, delete, destroy, purge, lock management), stack job
+    observability (logs, retry, cancel, approve), infra chart templates, infra
+    projects, infra pipeline orchestration, dependency graph analysis,
+    config manager (variables and secrets with version history), audit trails,
+    context discovery, service lifecycle (Git-to-CI/CD), service pipelines,
+    service variables groups, service secrets groups, DNS domains, and Tekton
+    pipeline/task management. Two read-only MCP resources expose schema
+    discovery before any tool call: cloud-resource-kinds://catalog (all 362
+    supported kinds) and cloud-resource-schema://{kind} (full JSON schema for
+    a specific kind).
+  icon_url: "https://planton.ai/favicon.ico"
+  stdio:
+    command: go
+    args:
+      - run
+      - "github.com/plantonhq/mcp-server-planton/cmd/mcp-server-planton@v1.0.13"
+  env_spec:
+    data:
+      PLANTON_API_KEY:
+        description: >
+          API key for authenticating with Planton Cloud in stdio transport mode.
+          Required. Create a key in the Planton Console under
+          Profile > API Keys > Create Key. Must have organization-level
+          permissions appropriate for the operations being performed.
+        is_secret: true
+      PLANTON_CLOUD_ENVIRONMENT:
+        description: >
+          Target Planton backend environment. Accepted values: live (default,
+          production endpoint api.live.planton.ai:443), test
+          (api.test.planton.cloud:443), or local (localhost:8080). Omit to
+          use the production environment.
+        is_secret: false
+      PLANTON_APIS_GRPC_ENDPOINT:
+        description: >
+          Explicit gRPC dial target override (e.g. "api.live.planton.ai:443").
+          Takes precedence over PLANTON_CLOUD_ENVIRONMENT when set. Optional —
+          omit to let the server derive the endpoint from
+          PLANTON_CLOUD_ENVIRONMENT.
+        is_secret: false
+  # default_enabled_tools is intentionally omitted — all 100 tools are
+  # available by default. Individual agents restrict to subsets via
+  # enabled_tools in their mcp_server_usages.
+  #
+  # default_tool_approvals is intentionally omitted here. Run discovery
+  # first to obtain verified tool names, then generate approval policies:
+  #
+  #   stigmer mcp-server apply mcp-servers/planton-cloud.yaml
+  #   stigmer discover mcp-server planton-cloud
+  #   stigmer mcp-server get planton-cloud --output yaml
+  #   # Copy names from status.discovered_capabilities.tools[*].name
