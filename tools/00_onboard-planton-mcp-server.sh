@@ -75,21 +75,11 @@ if [ -z "$LATEST_TAG" ]; then
     exit 1
 fi
 
-echo "Resolved version: ${LATEST_TAG}"
-
 # ---------------------------------------------------------------------------
 # Draft the McpServer YAML
 # ---------------------------------------------------------------------------
 
 mkdir -p "$OUTPUT_DIR"
-
-echo ""
-echo "=== Planton Cloud McpServer Onboarding ==="
-echo "Version:    ${LATEST_TAG}"
-echo "Workspaces: ${MCP_SERVER_LOCAL}"
-echo "            ${REPO_ROOT}"
-echo "Output:     ${OUTPUT_DIR}/"
-echo ""
 
 readonly _MSG_FILE="$(mktemp)"
 trap 'rm -f "${_MSG_FILE}"' EXIT
