@@ -3,7 +3,7 @@
 # 00_onboard-planton-mcp-server.sh
 # ==============================================================================
 #
-# Drafts the Planton Cloud McpServer YAML using `stigmer draft mcp-server`.
+# Drafts the Planton McpServer YAML using `stigmer draft mcp-server`.
 #
 # The script resolves the latest version tag from the mcp-server-planton
 # remote and pins the `go run` command to that exact version — never @latest.
@@ -85,7 +85,7 @@ readonly _MSG_FILE="$(mktemp)"
 trap 'rm -f "${_MSG_FILE}"' EXIT
 
 cat > "${_MSG_FILE}" <<PROMPT
-Create a Stigmer McpServer YAML named "planton-cloud".
+Create a Stigmer McpServer YAML named "planton".
 
 Transport: stdio using go run with a pinned version tag.
   command: go

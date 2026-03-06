@@ -1,6 +1,6 @@
 ---
 name: Phase 1 MCP Server Tool
-overview: Create `tools/00_create-planton-mcp-server.sh` — a shell script that invokes `stigmer draft mcp-server` with the Planton monorepo as workspace to generate a Stigmer McpServer YAML for the Planton Cloud MCP server, outputting to agent-fleet/mcp-servers/.
+overview: Create `tools/00_create-planton-mcp-server.sh` — a shell script that invokes `stigmer draft mcp-server` with the Planton monorepo as workspace to generate a Stigmer McpServer YAML for the Planton MCP server, outputting to agent-fleet/mcp-servers/.
 todos:
   - id: create-tool-script
     content: Create `tools/00_create-planton-mcp-server.sh` — the shell script with header, path resolution, dependency checks, spotlight attachments, prompt message, and stigmer CLI invocation
@@ -17,9 +17,9 @@ isProject: false
 
 A single file: `[tools/00_create-planton-mcp-server.sh](agent-fleet/tools/00_create-planton-mcp-server.sh)`
 
-This shell script invokes `stigmer draft mcp-server` to have the Stigmer `mcp-server-creator` system agent generate a production-quality `McpServer` YAML for Planton Cloud. The user executes the script manually; it is not automated.
+This shell script invokes `stigmer draft mcp-server` to have the Stigmer `mcp-server-creator` system agent generate a production-quality `McpServer` YAML for Planton. The user executes the script manually; it is not automated.
 
-The generated output lands at: `mcp-servers/planton-cloud.yaml` (or the slug the agent picks)
+The generated output lands at: `mcp-servers/planton.yaml` (or the slug the agent picks)
 
 ---
 
@@ -109,14 +109,14 @@ The prompt message is the most critical component — it drives the quality of t
 
 ### 1. What We Are Building
 
-A Stigmer `McpServer` YAML for an **existing** Go binary (`mcp-server-planton`) that bridges MCP protocol to Planton Cloud's gRPC backend. We are NOT designing the server — it already exists and runs. We are declaring it for Stigmer.
+A Stigmer `McpServer` YAML for an **existing** Go binary (`mcp-server-planton`) that bridges MCP protocol to Planton's gRPC backend. We are NOT designing the server — it already exists and runs. We are declaring it for Stigmer.
 
 ### 2. Server Connection Details (embedded in prompt since mcp-server-planton not in workspace)
 
 - **Transport**: stdio (subprocess)
 - **Command**: `mcp-server-planton` (Go binary, installed via `go install` or pre-built binary)
-- **Required env vars**: `PLANTON_API_KEY` (secret, API key for Planton Cloud with appropriate org permissions)
-- **Optional env vars**: `PLANTON_CLOUD_ENVIRONMENT` (non-secret, default `live`, values: `live`/`test`/`local`)
+- **Required env vars**: `PLANTON_API_KEY` (secret, API key for Planton with appropriate org permissions)
+- **Optional env vars**: `PLANTON_ENVIRONMENT` (non-secret, default `live`, values: `live`/`test`/`local`)
 
 ### 3. Workspace Exploration Guidance
 
@@ -141,7 +141,7 @@ Direct the agent to:
 
 - `apiVersion: agentic.stigmer.ai/v1`
 - `kind: McpServer`
-- `metadata.name`: `planton-cloud` (matching the server's conventional name)
+- `metadata.name`: `planton` (matching the server's conventional name)
 - Rich `spec.description` that captures what this MCP server provides
 - No `status` section
 - Slug must match `^[a-z][a-z0-9-]*$`
@@ -153,8 +153,8 @@ Direct the agent to:
 After the user runs the script and gets the generated YAML:
 
 1. **Visual review**: Check the YAML structure, description quality, env_spec accuracy
-2. **Schema validation**: `stigmer apply -f mcp-servers/planton-cloud.yaml --dry-run`
-3. **Tool discovery**: `stigmer discover mcp-server planton-cloud` to populate `status.discovered_capabilities` and verify tool names match approval entries
+2. **Schema validation**: `stigmer apply -f mcp-servers/planton.yaml --dry-run`
+3. **Tool discovery**: `stigmer discover mcp-server planton` to populate `status.discovered_capabilities` and verify tool names match approval entries
 4. **Refinement**: If tool names in approvals don't match discovered names, update and re-apply
 
 These steps are documented in the script's "Next steps" output.
@@ -163,7 +163,7 @@ These steps are documented in the script's "Next steps" output.
 
 ## What This Plan Does NOT Include
 
-- Writing `mcp-servers/planton-cloud.yaml` by hand (the Stigmer agent generates it)
+- Writing `mcp-servers/planton.yaml` by hand (the Stigmer agent generates it)
 - Modifying the Planton monorepo
 - Modifying the mcp-server-planton repo
 - Creating any files in agent-fleet besides the one tool script

@@ -105,7 +105,7 @@ When starting a new session:
 
 **What was delivered:**
 
-1. **`tools/00_create-planton-mcp-server.sh`** — Shell script that invokes `stigmer draft mcp-server` to generate the Planton Cloud McpServer YAML
+1. **`tools/00_create-planton-mcp-server.sh`** — Shell script that invokes `stigmer draft mcp-server` to generate the Planton McpServer YAML
    - Workspace: Planton monorepo (for deep domain understanding)
    - Spotlight attachments: `docs/product/infra-hub`, `docs/product/service-hub`, `what-is-a-planton-api-resource.md`
    - Output: `mcp-servers/` directory
@@ -143,11 +143,11 @@ When starting a new session:
 **Current step:**
 - Done: Phase 0 — Repository scaffold + Stigmer manifest (2026-03-02)
 - Done: Phase 1 tool script created (2026-03-03)
-- Next: **Run tool script** to generate `mcp-servers/planton-cloud.yaml`, then review and validate
+- Next: **Run tool script** to generate `mcp-servers/planton.yaml`, then review and validate
 
 ## Objectives for Next Session
 
-**Option A (Recommended):** Execute `./tools/00_create-planton-mcp-server.sh`, review the generated McpServer YAML, validate with `stigmer apply --dry-run`, run discovery, and refine. Then proceed to Phase 2 (Cloud Resource Assistant).
+**Option A (Recommended):** Execute `./tools/00_onboard-planton-mcp-server.sh`, review the generated McpServer YAML, validate with `stigmer apply --dry-run`, run discovery, and refine. Then proceed to Phase 2 (Cloud Resource Assistant).
 
 **Option B:** Skip to Phase 2 if the McpServer YAML was already generated and validated outside this workflow.
 

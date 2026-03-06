@@ -6,7 +6,7 @@ Plans created for the Stigmer Resources for Planton project. Each plan documents
 
 | Plan | Status | Created | Completed | Description |
 |------|--------|---------|-----------|-------------|
-| `phase-1-mcp-server-tool.plan.md` | Completed | 2026-03-03 | 2026-03-03 | Phase 1 tool script for generating Planton Cloud McpServer YAML via `stigmer draft mcp-server` |
+| `phase-1-mcp-server-tool.plan.md` | Completed | 2026-03-03 | 2026-03-03 | Phase 1 tool script for generating Planton McpServer YAML via `stigmer draft mcp-server` |
 
 ### Status Legend
 
@@ -18,7 +18,7 @@ Plans created for the Stigmer Resources for Planton project. Each plan documents
 ## Plan Details
 
 ### phase-1-mcp-server-tool.plan.md
-- **Objective**: Create `tools/00_create-planton-mcp-server.sh` that invokes Stigmer to generate the Planton Cloud McpServer YAML
+- **Objective**: Create `tools/00_create-planton-mcp-server.sh` that invokes Stigmer to generate the Planton McpServer YAML
 - **Tasks**: 2 (create tool script, update project status)
 - **Status**: Completed
 

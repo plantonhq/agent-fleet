@@ -27,7 +27,7 @@ flowchart LR
         S1["00_onboard-planton-mcp-server.sh"]
         Tag["git ls-remote\n(fetch latest tag)"]
         Draft1["stigmer draft mcp-server"]
-        YAML1["planton-cloud.yaml\n(no approval policies)"]
+        YAML1["planton.yaml\n(no approval policies)"]
 
         S1 --> Tag --> Draft1 --> YAML1
     end
@@ -36,7 +36,7 @@ flowchart LR
         S2["01_generate-approval-policy.sh"]
         Apply["stigmer apply\n(auto-discovers tools)"]
         Draft2["stigmer draft mcp-server"]
-        YAML2["planton-cloud.yaml\n(with approval policies)"]
+        YAML2["planton.yaml\n(with approval policies)"]
 
         S2 --> Apply --> Draft2 --> YAML2
     end
@@ -58,7 +58,7 @@ stdio:
 
 ### Script 2: `01_generate-approval-policy.sh`
 
-Applies the McpServer YAML (triggering auto-discovery), then invokes `stigmer draft mcp-server` with a 5-line prompt. The agent queries the backend for `planton-cloud`'s discovered capabilities via `get_mcp_server`, identifies destructive tools by their nature, and generates approval policies with correct `{{args.field}}` placeholders from each tool's input schema.
+Applies the McpServer YAML (triggering auto-discovery), then invokes `stigmer draft mcp-server` with a 5-line prompt. The agent queries the backend for `planton`'s discovered capabilities via `get_mcp_server`, identifies destructive tools by their nature, and generates approval policies with correct `{{args.field}}` placeholders from each tool's input schema.
 
 ## Implementation Details
 

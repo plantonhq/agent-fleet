@@ -1,4 +1,4 @@
-# Phase 1: Planton Cloud McpServer Tool Script
+# Phase 1: Planton McpServer Tool Script
 
 **Date**: March 3, 2026
 
@@ -8,7 +8,7 @@ Created `tools/00_create-planton-mcp-server.sh` — the first tool script in the
 
 ## Problem Statement
 
-Phase 1 of the agent-fleet project requires a Stigmer `McpServer` YAML definition for the Planton Cloud MCP server. Rather than hand-writing the YAML, the project uses Stigmer's own `mcp-server-creator` system agent to generate it — demonstrating Stigmer's self-extensibility and ensuring the output conforms to the `agentic.stigmer.ai/v1` schema.
+Phase 1 of the agent-fleet project requires a Stigmer `McpServer` YAML definition for the Planton MCP server. Rather than hand-writing the YAML, the project uses Stigmer's own `mcp-server-creator` system agent to generate it — demonstrating Stigmer's self-extensibility and ensuring the output conforms to the `agentic.stigmer.ai/v1` schema.
 
 ### Requirements
 
@@ -32,7 +32,7 @@ flowchart LR
     CLI["stigmer draft mcp-server"]
     Agent["mcp-server-creator agent"]
     Planton["Planton monorepo\n(workspace)"]
-    Output["mcp-servers/\nplanton-cloud.yaml"]
+    Output["mcp-servers/\nplanton.yaml"]
 
     Script -->|invokes| CLI
     CLI -->|runs| Agent
@@ -60,7 +60,7 @@ tools/00_create-planton-mcp-server.sh
 
 **Cross-repo path resolution**: `PLANTON_REPO` defaults to `../planton` relative to the agent-fleet root but can be overridden via environment variable for portability.
 
-**Post-generation discovery**: The script's output guides the user through `stigmer discover mcp-server planton-cloud` to verify tool names match the approval entries.
+**Post-generation discovery**: The script's output guides the user through `stigmer discover mcp-server planton` to verify tool names match the approval entries.
 
 ## Implementation Details
 
@@ -71,11 +71,11 @@ The prompt message covers:
 | Domain | What the Agent Learns |
 |--------|----------------------|
 | Server connection | stdio transport, `mcp-server-planton` binary, Go install command |
-| Environment variables | `PLANTON_API_KEY` (secret), `PLANTON_CLOUD_ENVIRONMENT` (optional) |
+| Environment variables | `PLANTON_API_KEY` (secret), `PLANTON_ENVIRONMENT` (optional) |
 | Workspace exploration | Paths to infra-hub docs, service-hub docs, protobuf APIs |
 | Tool domains | 14 major categories (cloud resources, stack jobs, infra charts, etc.) |
 | Approval policies | 16 destructive operations with templated approval messages |
-| YAML requirements | `metadata.name: planton-cloud`, rich description, no status section |
+| YAML requirements | `metadata.name: planton`, rich description, no status section |
 
 ### Destructive Tool Approvals
 
