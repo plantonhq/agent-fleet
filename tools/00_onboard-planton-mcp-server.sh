@@ -7,10 +7,10 @@
 #
 # The script resolves the latest version tag from the mcp-server-planton
 # remote and pins the `go run` command to that exact version — never @latest.
-# Two workspaces are passed so the agent can read source files directly
-# without spawning subagents or running shell commands:
+# Two workspaces are passed so the agent can read source files and write
+# the output YAML directly without spawning subagents or shell commands:
 #   1. mcp-server-planton — source code (README, go.mod, cmd/, internal/)
-#   2. agent-fleet (this repo) — output directory and existing configs
+#   2. agent-fleet (this repo) — target for the generated McpServer YAML
 #
 # Prerequisites:
 #   - stigmer CLI in PATH
@@ -26,7 +26,6 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-readonly OUTPUT_DIR="${REPO_ROOT}/mcp-servers"
 readonly MCP_SERVER_REMOTE="https://github.com/plantonhq/mcp-server-planton.git"
 readonly GO_MODULE="github.com/plantonhq/mcp-server-planton/cmd/mcp-server-planton"
 
@@ -79,8 +78,6 @@ fi
 # Draft the McpServer YAML
 # ---------------------------------------------------------------------------
 
-mkdir -p "$OUTPUT_DIR"
-
 readonly _MSG_FILE="$(mktemp)"
 trap 'rm -f "${_MSG_FILE}"' EXIT
 
@@ -100,17 +97,18 @@ Read these files to understand what it does and what it needs:
 
 Write an accurate description and env_spec based on what you find.
 Do not include default_tool_approvals — those will be generated after discovery.
+
+Write the resulting YAML file to mcp-servers/planton.yaml in the agent-fleet workspace.
 PROMPT
 
 stigmer draft mcp-server \
     --workspace "$MCP_SERVER_LOCAL" \
     --workspace "$REPO_ROOT" \
-    --output "$OUTPUT_DIR" \
     -m "$(cat "${_MSG_FILE}")"
 
 echo ""
 echo "=== Onboarding Complete ==="
-echo "Output: ${OUTPUT_DIR}/"
+echo "Output: mcp-servers/planton.yaml (in the agent-fleet workspace)"
 echo ""
 echo "Next steps:"
 echo "  1. Review the generated McpServer YAML"

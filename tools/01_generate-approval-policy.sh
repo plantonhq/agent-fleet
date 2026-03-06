@@ -9,7 +9,8 @@
 #
 # The mcp-server-creator agent queries the backend for the planton
 # MCP server's discovered tools and determines which operations need human
-# approval based on the nature of each tool.
+# approval based on the nature of each tool. The agent writes the updated
+# YAML directly to mcp-servers/planton.yaml in the agent-fleet workspace.
 #
 # Prerequisites:
 #   - stigmer CLI in PATH
@@ -25,8 +26,7 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-readonly OUTPUT_DIR="${REPO_ROOT}/mcp-servers"
-readonly MCP_SERVER_YAML="${OUTPUT_DIR}/planton.yaml"
+readonly MCP_SERVER_YAML="${REPO_ROOT}/mcp-servers/planton.yaml"
 
 # ---------------------------------------------------------------------------
 # Dependency checks
@@ -73,16 +73,18 @@ Based on the nature of each tool, identify destructive or dangerous operations
 and add default_tool_approvals with clear approval messages.
 
 Output only apiVersion, kind, metadata, and spec. Do not include status.
+
+Write the resulting YAML file to mcp-servers/planton.yaml in the agent-fleet workspace.
 PROMPT
 
 stigmer draft mcp-server \
-    --output "$OUTPUT_DIR" \
+    --workspace "$REPO_ROOT" \
     -m "$(cat "${_MSG_FILE}")"
 
 echo ""
 echo "=== Approval Policy Generation Complete ==="
-echo "Output: ${OUTPUT_DIR}/"
+echo "Output: mcp-servers/planton.yaml (in the agent-fleet workspace)"
 echo ""
 echo "Next steps:"
 echo "  1. Review the updated McpServer YAML with approval policies"
-echo "  2. Apply: stigmer apply -f ${MCP_SERVER_YAML}"
+echo "  2. Apply: stigmer apply -f mcp-servers/planton.yaml"
