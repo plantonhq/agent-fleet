@@ -91,13 +91,50 @@ When starting a new session:
 | 0 | Repository scaffold + Stigmer manifest | Done |
 | 1 | Planton MCP Server definition | Done |
 | 2 | Cloud Resource Assistant (agent + skill) | In Progress |
-| 3 | Stack Job Troubleshooter (agent + skill) | Pending |
+| 3 | Stack Job Troubleshooter (agent + skill) | In Progress |
 | 4 | Infra Chart Composer (agent + skill) | In Progress |
-| 5 | Planton Onboarding Guide (agent + skill) | Pending |
-| 6 | Service Pipeline Debugger (agent + skill) | Pending |
+| 5 | Planton Onboarding Guide (agent + skill) | In Progress |
+| 6 | Service Pipeline Debugger (agent + skill) | In Progress |
 | 7 | Tooling, automation, final README | Pending |
 
 ## Session History
+
+### Session 5: Phases 3, 5, 6 — Remaining Agent Tool Scripts (2026-03-08)
+
+**Created tool scripts for the three remaining agents in a single session.**
+
+**What was delivered:**
+
+1. **Stack Job Troubleshooter (Phase 3):**
+   - `tools/07_draft-stack-job-troubleshooter-skill.sh` — Skill draft script. Prompt describes the agent's role as a senior SRE diagnosing failed Stack Jobs. Guides the skill-creator to explore what-is-a-stack-job.md, 66+ stack-job changelogs (error transparency, status sync, cancellation, stack input errors), and protobuf definitions (StackJob, StackJobStatus, StackJobProgressEvent, IaC operation states, Terraform/Pulumi engine events). Emphasizes the IaC operation step model (init -> refresh -> preview -> apply/destroy), common failure patterns, and the retry vs fix-and-reapply decision framework.
+   - `tools/08_draft-stack-job-troubleshooter-agent.sh` — Agent draft script. Tool profile: read + diagnostic + limited-operational (rerun/resume). Can read stack jobs, progress events, IaC resources, stack inputs, and error recommendations. Cancel requires approval. Does NOT manage Cloud Resource lifecycle.
+
+2. **Planton Onboarding Guide (Phase 5):**
+   - `tools/09_draft-planton-onboarding-guide-skill.sh` — Skill draft script. Prompt describes the agent as a patient platform educator. Guides the skill-creator to explore ALL what-is docs across every domain (Infra Hub 10 articles, Service Hub 4, Connect 5, Security 3, Runner 2, Cloud Ops 1), resource hierarchy docs, connection docs, and the web console's 8-task onboarding checklist. Includes a terminology glossary requirement covering all core Planton terms.
+   - `tools/10_draft-planton-onboarding-guide-agent.sh` — Agent draft script. Tool profile: strictly read-only. Can look up orgs, envs, resource kinds, connections for contextual answers. No write or destructive tools.
+
+3. **Service Pipeline Debugger (Phase 6):**
+   - `tools/11_draft-service-pipeline-debugger-skill.sh` — Skill draft script. Prompt describes the agent as a senior CI/CD reliability engineer. Guides the skill-creator to explore Service Hub what-is docs, self-managed pipeline guides (Tekton), pipeline changelogs, and protobuf definitions (Pipeline, PipelineBuildStage, PipelineDeploymentStage, TektonPipeline, TektonTask, ServicePipelineConfiguration). Covers the three-stage model (Creation -> Build -> Deploy), build method variations (Dockerfile, Buildpacks, self-managed Tekton), Kustomize context, and comprehensive failure pattern catalogs for build, deploy, and trigger failures.
+   - `tools/12_draft-service-pipeline-debugger-agent.sh` — Agent draft script. Tool profile: read + diagnostic + limited-operational (retrigger/rerun). Can read services, pipelines, build/deploy stages, task logs, configurations. Does NOT manage Service lifecycle.
+
+**Key Decisions Made:**
+- Script numbers 07-12 (sequential pairs continuing from existing 06)
+- All three agents follow the same shell boilerplate and convention rule
+- Tool profiles differentiated by role: troubleshooters get read+diagnostic+rerun, onboarding guide is strictly read-only
+- Stack Job Troubleshooter: leveraged discovery of 66+ changelogs and existing getErrorResolutionRecommendation RPC pattern
+- Onboarding Guide: broadest knowledge scope — covers ALL platform domains, not just one
+- Service Pipeline Debugger: covers both platform-managed and self-managed (Tekton) pipeline modes
+
+**Files Changed/Created:**
+- `tools/07_draft-stack-job-troubleshooter-skill.sh` — New skill draft script
+- `tools/08_draft-stack-job-troubleshooter-agent.sh` — New agent draft script
+- `tools/09_draft-planton-onboarding-guide-skill.sh` — New skill draft script
+- `tools/10_draft-planton-onboarding-guide-agent.sh` — New agent draft script
+- `tools/11_draft-service-pipeline-debugger-skill.sh` — New skill draft script
+- `tools/12_draft-service-pipeline-debugger-agent.sh` — New agent draft script
+- `_projects/.../next-task.md` — Updated status
+
+---
 
 ### Session 4: Phase 2 — Cloud Resource Assistant Tool Scripts (2026-03-08)
 
@@ -188,33 +225,40 @@ When starting a new session:
 ## Current Status
 
 **Created**: 2026-03-02
-**Current Task**: Phase 2 — Cloud Resource Assistant (agent + skill)
-**Status**: In Progress — tool scripts created, awaiting manual execution
+**Current Task**: All agent tool scripts created — ready to run draft commands
+**Status**: All 5 agent pairs have tool scripts; awaiting manual execution
 
 **Current step:**
 - Done: Phase 0 — Repository scaffold + Stigmer manifest (2026-03-02)
 - Done: Phase 1 — MCP server definition generated and validated
-- In Progress: Phase 4 — Infra Chart Composer tool scripts ready
-- In Progress: Phase 2 — Cloud Resource Assistant tool scripts ready
-- Next: **Run the draft scripts** for either Phase 2 or Phase 4, review output, iterate
+- In Progress: Phase 2 — Cloud Resource Assistant tool scripts ready (05, 06)
+- In Progress: Phase 3 — Stack Job Troubleshooter tool scripts ready (07, 08)
+- In Progress: Phase 4 — Infra Chart Composer tool scripts ready (03, 04)
+- In Progress: Phase 5 — Planton Onboarding Guide tool scripts ready (09, 10)
+- In Progress: Phase 6 — Service Pipeline Debugger tool scripts ready (11, 12)
+- Next: **Run the draft scripts**, review output, iterate
 
 ## Objectives for Next Session
 
-**Option A (Recommended):** Run `./tools/05_draft-cloud-resource-assistant-skill.sh`, review the generated skill, then run `./tools/06_draft-cloud-resource-assistant-agent.sh`, review the agent YAML.
+**Option A (Recommended):** Start executing draft scripts. Run skill scripts first (they generate the SKILL.md that agent scripts depend on), then agent scripts. Suggested order: Phase 4 (03, 04), Phase 2 (05, 06), Phase 3 (07, 08), Phase 5 (09, 10), Phase 6 (11, 12).
 
-**Option B:** Run the Phase 4 (Infra Chart Composer) draft scripts instead.
+**Option B:** Run a single agent's pair end-to-end (skill + agent), review and iterate on quality before proceeding to the next.
 
-**Option C:** Create tool scripts for the next agent (Phase 3 — Stack Job Troubleshooter, or Phase 5 — Planton Onboarding Guide).
-
-**Option D:** Iterate on existing tool script prompts if adjustments are needed.
+**Option C:** Iterate on existing tool script prompts if adjustments are needed before running.
 
 ## Quick Commands
 
 After loading context:
 - "Run Phase 2 skill draft" — Execute `./tools/05_draft-cloud-resource-assistant-skill.sh`
 - "Run Phase 2 agent draft" — Execute `./tools/06_draft-cloud-resource-assistant-agent.sh`
+- "Run Phase 3 skill draft" — Execute `./tools/07_draft-stack-job-troubleshooter-skill.sh`
+- "Run Phase 3 agent draft" — Execute `./tools/08_draft-stack-job-troubleshooter-agent.sh`
 - "Run Phase 4 skill draft" — Execute `./tools/03_draft-infra-chart-composer-skill.sh`
 - "Run Phase 4 agent draft" — Execute `./tools/04_draft-infra-chart-composer-agent.sh`
+- "Run Phase 5 skill draft" — Execute `./tools/09_draft-planton-onboarding-guide-skill.sh`
+- "Run Phase 5 agent draft" — Execute `./tools/10_draft-planton-onboarding-guide-agent.sh`
+- "Run Phase 6 skill draft" — Execute `./tools/11_draft-service-pipeline-debugger-skill.sh`
+- "Run Phase 6 agent draft" — Execute `./tools/12_draft-service-pipeline-debugger-agent.sh`
 - "Show project status" — Get overview of progress
 - "Create checkpoint" — Save current progress
 
