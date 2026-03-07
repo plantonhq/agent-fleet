@@ -1,5 +1,5 @@
 ---
-description: Generate shell scripts that invoke stigmer draft skill / stigmer draft agent. Use when asked to create a new agent, skill, or draft script for the agent-fleet project.
+description: Generate shell scripts that invoke stigmer draft (mcp-server, skill, agent). Use when asked to create a new MCP server, agent, skill, or draft script for the agent-fleet project.
 globs: tools/**/*.sh
 alwaysApply: false
 ---
@@ -8,13 +8,17 @@ alwaysApply: false
 
 ## Script Structure
 
-Every Stigmer resource gets **two separate scripts** — never combine them:
+Every `stigmer draft` command gets its **own script** — never combine them:
 
-1. `tools/NN_draft-<name>-skill.sh` — runs `stigmer draft skill`
-2. `tools/NN+1_draft-<name>-agent.sh` — runs `stigmer draft agent`
+| Draft Type | Script Naming | Command |
+|-----------|---------------|---------|
+| MCP Server | `tools/NN_<verb>-<name>-mcp-server.sh` | `stigmer draft mcp-server` |
+| Skill | `tools/NN_draft-<name>-skill.sh` | `stigmer draft skill` |
+| Agent | `tools/NN+1_draft-<name>-agent.sh` | `stigmer draft agent` |
 
-Number scripts sequentially to reflect execution order. The agent script
-must check that the skill it depends on was already generated.
+Number scripts sequentially to reflect execution order and dependencies.
+The agent script must check that the skill it depends on was already generated.
+The skill script may depend on the MCP server being defined first.
 
 ## Shell Boilerplate
 
@@ -30,14 +34,14 @@ Follow the pattern established in `tools/00_onboard-planton-mcp-server.sh`:
 
 ## Prompt Principles — CRITICAL
 
-The prompt passed to `stigmer draft skill` or `stigmer draft agent` must be
-**intent-driven and discovery-oriented**. The Stigmer agent has full access
-to the workspace and is capable of exploring it. The prompt should:
+The prompt passed to any `stigmer draft` command must be **intent-driven
+and discovery-oriented**. The Stigmer agent has full access to the
+workspace and is capable of exploring it. The prompt should:
 
 ### DO
 
-- Describe WHAT the skill/agent is for and WHAT role it fills
-- Describe the agent's scope (create, modify, validate, etc.)
+- Describe WHAT the resource (MCP server, skill, or agent) is for
+- Describe its scope and responsibilities
 - Tell the agent to EXPLORE the workspace to build domain understanding
 - Mention documentation PATTERNS to search for, not paths:
   - "what-is-*" articles (a convention in Planton repos for concept docs)
@@ -63,6 +67,28 @@ to the workspace and is capable of exploring it. The prompt should:
 
 The Stigmer agent reads the workspace, discovers what exists, understands
 the patterns, and makes its own decisions about structure and content.
+
+## MCP Server Script — Workspace Setup
+
+The MCP server draft needs the server's source code and agent-fleet:
+
+```
+stigmer draft mcp-server \
+    --workspace "$MCP_SERVER_LOCAL" \
+    --workspace "$REPO_ROOT" \
+    -m "$(cat "${_MSG_FILE}")"
+```
+
+- `$MCP_SERVER_LOCAL` — the repository containing the MCP server source
+  code (README, go.mod, cmd/, internal/). Resolved as a sibling directory
+  with `$1` override.
+- `$REPO_ROOT` — agent-fleet, where the generated YAML is written.
+
+The prompt should tell the agent to:
+- Read the source code to understand what the server does and what it needs
+- Discover transport details (stdio command, args) from the entrypoint
+- Extract environment variable requirements from the source
+- Write the YAML to `mcp-servers/<name>.yaml`
 
 ## Skill Script — Workspace Setup
 

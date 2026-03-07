@@ -90,7 +90,7 @@ When starting a new session:
 |-------|-------------|--------|
 | 0 | Repository scaffold + Stigmer manifest | Done |
 | 1 | Planton MCP Server definition | Done |
-| 2 | Cloud Resource Assistant (agent + skill) | Pending |
+| 2 | Cloud Resource Assistant (agent + skill) | In Progress |
 | 3 | Stack Job Troubleshooter (agent + skill) | Pending |
 | 4 | Infra Chart Composer (agent + skill) | In Progress |
 | 5 | Planton Onboarding Guide (agent + skill) | Pending |
@@ -98,6 +98,30 @@ When starting a new session:
 | 7 | Tooling, automation, final README | Pending |
 
 ## Session History
+
+### Session 4: Phase 2 — Cloud Resource Assistant Tool Scripts (2026-03-08)
+
+**Created tool scripts for the Cloud Resource Assistant agent.**
+
+**What was delivered:**
+
+1. **`tools/05_draft-cloud-resource-assistant-skill.sh`** — Runs `stigmer draft skill` with the Planton monorepo as workspace. Prompt is discovery-oriented: describes the agent's role as a senior cloud infrastructure specialist, guides the skill-creator to explore what-is docs (Cloud Resources, Cloud Resource Kinds, Cloud Objects, Cloud Object Presets, OpenMCF), production Cloud Resource YAML manifests, changelogs, and proto APIs. Emphasizes schema discovery via MCP resources (`cloud-resource-kinds://catalog`, `cloud-resource-schema://{kind}`), preset-first workflow, and resource ID patterns.
+
+2. **`tools/06_draft-cloud-resource-assistant-agent.sh`** — Runs `stigmer draft agent` with agent-fleet as workspace. Reads the generated skill and MCP server YAML. Key difference from Infra Chart Composer: explicitly instructs the agent-creator to select BOTH read AND write tools (create, update, apply) since this agent manages the full Cloud Resource lifecycle, not just file composition. Destructive tools (delete, destroy, force-unlock) are included but covered by the MCP server's approval policy.
+
+**Key Decisions Made:**
+- Used script numbers 05 and 06 (next available pair after 00, 01, 03, 04)
+- Agent needs read+write tool access (distinct from Infra Chart Composer's read-only profile)
+- Prompt emphasizes "preset-first" workflow — always check presets before building from scratch
+- Schema discovery is critical — agent must fetch schemas on-demand, never guess field names
+- Resource ID pattern (`<kind-prefix>-<org>-<name>`, max 27 chars) included in skill prompt
+
+**Files Changed/Created:**
+- `tools/05_draft-cloud-resource-assistant-skill.sh` — New skill draft script
+- `tools/06_draft-cloud-resource-assistant-agent.sh` — New agent draft script
+- `_projects/.../next-task.md` — Updated status
+
+---
 
 ### Session 3: Phase 4 — Infra Chart Composer Tool Scripts (2026-03-08)
 
@@ -164,26 +188,31 @@ When starting a new session:
 ## Current Status
 
 **Created**: 2026-03-02
-**Current Task**: Phase 4 — Infra Chart Composer (agent + skill)
+**Current Task**: Phase 2 — Cloud Resource Assistant (agent + skill)
 **Status**: In Progress — tool scripts created, awaiting manual execution
 
 **Current step:**
 - Done: Phase 0 — Repository scaffold + Stigmer manifest (2026-03-02)
 - Done: Phase 1 — MCP server definition generated and validated
 - In Progress: Phase 4 — Infra Chart Composer tool scripts ready
-- Next: **Run `./tools/03_draft-infra-chart-composer-skill.sh`**, review the generated skill, then run `./tools/04_draft-infra-chart-composer-agent.sh`
+- In Progress: Phase 2 — Cloud Resource Assistant tool scripts ready
+- Next: **Run the draft scripts** for either Phase 2 or Phase 4, review output, iterate
 
 ## Objectives for Next Session
 
-**Option A (Recommended):** Run the skill draft script, review generated SKILL.md and references, then run the agent draft script, review the agent YAML, and validate.
+**Option A (Recommended):** Run `./tools/05_draft-cloud-resource-assistant-skill.sh`, review the generated skill, then run `./tools/06_draft-cloud-resource-assistant-agent.sh`, review the agent YAML.
 
-**Option B:** Iterate on the tool script prompts if the generated output needs adjustments.
+**Option B:** Run the Phase 4 (Infra Chart Composer) draft scripts instead.
 
-**Option C:** Proceed to Phase 2 (Cloud Resource Assistant) or Phase 3 (Stack Job Troubleshooter) using the same script generation pattern.
+**Option C:** Create tool scripts for the next agent (Phase 3 — Stack Job Troubleshooter, or Phase 5 — Planton Onboarding Guide).
+
+**Option D:** Iterate on existing tool script prompts if adjustments are needed.
 
 ## Quick Commands
 
 After loading context:
+- "Run Phase 2 skill draft" — Execute `./tools/05_draft-cloud-resource-assistant-skill.sh`
+- "Run Phase 2 agent draft" — Execute `./tools/06_draft-cloud-resource-assistant-agent.sh`
 - "Run Phase 4 skill draft" — Execute `./tools/03_draft-infra-chart-composer-skill.sh`
 - "Run Phase 4 agent draft" — Execute `./tools/04_draft-infra-chart-composer-agent.sh`
 - "Show project status" — Get overview of progress
