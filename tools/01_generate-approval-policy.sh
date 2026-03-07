@@ -82,9 +82,6 @@ stigmer draft mcp-server \
     -m "$(cat "${_MSG_FILE}")"
 
 echo ""
-echo "=== Approval Policy Generation Complete ==="
-echo "Output: mcp-servers/planton.yaml (in the agent-fleet workspace)"
-echo ""
 echo "Next steps:"
 echo "  1. Review the updated McpServer YAML with approval policies"
 echo "  2. Apply: stigmer apply -f mcp-servers/planton.yaml"

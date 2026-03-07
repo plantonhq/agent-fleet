@@ -107,9 +107,6 @@ stigmer draft mcp-server \
     -m "$(cat "${_MSG_FILE}")"
 
 echo ""
-echo "=== Onboarding Complete ==="
-echo "Output: mcp-servers/planton.yaml (in the agent-fleet workspace)"
-echo ""
 echo "Next steps:"
-echo "  1. Review the generated McpServer YAML"
+echo "  1. Review mcp-servers/planton.yaml"
 echo "  2. Run: ./tools/01_generate-approval-policy.sh"
