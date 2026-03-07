@@ -55,12 +55,12 @@ Build a complete Stigmer project in `plantonhq/agent-fleet` that defines an MCP 
   - `get-infra-charts` — List available Infra Charts
   - `get-infra-projects` — List Infra Projects with pipeline status
   - `get-infra-pipelines` — Get pipeline execution details
-- [ ] Use Stigmer MCP Server Creator agent OR hand-write `mcp-servers/planton-mcp-server.yaml`
+- [ ] Use Stigmer MCP Server Creator agent OR hand-write `mcp-servers/planton.yaml`
 - [ ] Validate the YAML against Stigmer's MCP server schema
 - [ ] Create `tools/00_create-planton-mcp-server.sh`
 
 ### Output
-- `mcp-servers/planton-mcp-server.yaml`
+- `mcp-servers/planton.yaml`
 - `tools/00_create-planton-mcp-server.sh`
 
 ### Context Sources

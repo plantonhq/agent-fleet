@@ -1,0 +1,53 @@
+apiVersion: agentic.stigmer.ai/v1
+kind: McpServer
+metadata:
+  name: planton
+  org: default
+spec:
+  description: >
+    Connects AI agents to the Planton platform via gRPC, exposing 100 tools
+    that cover the full product surface: cloud resource lifecycle (create,
+    update, delete, destroy) across 17 providers and 362 resource kinds,
+    stack-job observability, InfraChart templates, InfraProject and
+    InfraPipeline management, dependency-graph analysis, Config Manager
+    (variables and secrets), audit history, service lifecycle and CI/CD
+    pipelines, service variable/secret groups, DNS domains, Tekton
+    pipelines and tasks, and context discovery (orgs and environments).
+    Two read-only MCP resources provide schema-driven discovery:
+    cloud-resource-kinds://catalog and cloud-resource-schema://{kind}.
+  stdio:
+    command: go
+    args:
+      - run
+      - github.com/plantonhq/mcp-server-planton/cmd/mcp-server-planton@v1.0.14
+  env_spec:
+    data:
+      PLANTON_API_KEY:
+        description: >
+          Planton API key used to authenticate all gRPC calls to the Planton
+          backend. Generate one at Console > Profile > API Keys > Create Key.
+          Required when transport is stdio (the default).
+        is_secret: true
+      PLANTON_ENVIRONMENT:
+        description: >
+          Target Planton backend environment. Accepted values: live (default,
+          routes to api.live.planton.ai:443), test (api.test.planton.cloud:443),
+          or local (localhost:8080). Omit to use the live environment.
+        is_secret: false
+      PLANTON_APIS_GRPC_ENDPOINT:
+        description: >
+          Explicit gRPC dial target override, e.g. "api.live.planton.ai:443".
+          Takes precedence over PLANTON_ENVIRONMENT when set. Omit for standard
+          environments; useful only for custom or self-hosted Planton deployments.
+        is_secret: false
+      PLANTON_MCP_LOG_LEVEL:
+        description: >
+          Minimum log severity emitted by the server process. Accepted values:
+          debug, info (default), warn, error. Useful for troubleshooting;
+          set to debug to trace every gRPC call.
+        is_secret: false
+      PLANTON_MCP_LOG_FORMAT:
+        description: >
+          Structured log encoding. Accepted values: text (default, human-readable)
+          or json (machine-readable, recommended for log aggregation pipelines).
+        is_secret: false
