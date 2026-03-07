@@ -1,0 +1,112 @@
+---
+description: Generate shell scripts that invoke stigmer draft skill / stigmer draft agent. Use when asked to create a new agent, skill, or draft script for the agent-fleet project.
+globs: tools/**/*.sh
+alwaysApply: false
+---
+
+# Generating Stigmer Draft Scripts
+
+## Script Structure
+
+Every Stigmer resource gets **two separate scripts** — never combine them:
+
+1. `tools/NN_draft-<name>-skill.sh` — runs `stigmer draft skill`
+2. `tools/NN+1_draft-<name>-agent.sh` — runs `stigmer draft agent`
+
+Number scripts sequentially to reflect execution order. The agent script
+must check that the skill it depends on was already generated.
+
+## Shell Boilerplate
+
+Follow the pattern established in `tools/00_onboard-planton-mcp-server.sh`:
+
+- `set -euo pipefail`
+- `readonly SCRIPT_DIR` and `REPO_ROOT` derived from `BASH_SOURCE`
+- Prerequisite check for `stigmer` CLI
+- Workspace directory resolution with fallback to sibling dir, overridable via `$1`
+- Prompt written to `mktemp` file, cleaned up via `trap ... EXIT`
+- Progress echo before the `stigmer draft` call
+- "Next steps" echo after completion
+
+## Prompt Principles — CRITICAL
+
+The prompt passed to `stigmer draft skill` or `stigmer draft agent` must be
+**intent-driven and discovery-oriented**. The Stigmer agent has full access
+to the workspace and is capable of exploring it. The prompt should:
+
+### DO
+
+- Describe WHAT the skill/agent is for and WHAT role it fills
+- Describe the agent's scope (create, modify, validate, etc.)
+- Tell the agent to EXPLORE the workspace to build domain understanding
+- Mention documentation PATTERNS to search for, not paths:
+  - "what-is-*" articles (a convention in Planton repos for concept docs)
+  - Changelog entries under `_changelog/` directories (architectural records)
+  - Protobuf API definitions (exact field names and types)
+  - Production examples (real deployed configurations)
+- Mention MCP resource URIs if the agent needs to teach schema discovery
+  (e.g., `cloud-resource-schema://{kind}`) since these are runtime APIs,
+  not filesystem paths
+- State key principles the skill must convey (quality standards, validation
+  rules, behavioral guidelines)
+- State the output location (e.g., `skills/<name>/` or `agents/<name>.yaml`)
+
+### DO NOT
+
+- Hardcode file paths (`docs/product/infra-hub/what-is-an-infra-chart.md`)
+- Hardcode directory structures (`ops/organizations/planton/...`)
+- List specific MCP tool names for the agent to enable
+- Define YAML field structures or file layouts
+- Paste proto message definitions
+- Copy-paste changelog contents
+- Define what the references/ directory should contain
+
+The Stigmer agent reads the workspace, discovers what exists, understands
+the patterns, and makes its own decisions about structure and content.
+
+## Skill Script — Workspace Setup
+
+The skill draft needs access to domain knowledge:
+
+```
+stigmer draft skill \
+    --workspace "$DOMAIN_REPO" \
+    --workspace "$REPO_ROOT" \
+    -m "$(cat "${_MSG_FILE}")"
+```
+
+- `$DOMAIN_REPO` — the repository containing domain docs, APIs, examples,
+  changelogs (e.g., planton monorepo). Resolved as a sibling directory
+  with `$1` override.
+- `$REPO_ROOT` — agent-fleet, where the skill will be written.
+
+## Agent Script — Workspace Setup
+
+The agent draft only needs agent-fleet (which already has the generated
+skill and the MCP server YAML):
+
+```
+stigmer draft agent \
+    --workspace "$REPO_ROOT" \
+    -m "$(cat "${_MSG_FILE}")"
+```
+
+The prompt should tell the agent to:
+- Read the MCP server definition to understand what server to reference
+- Read the generated skill to understand what domain knowledge it provides
+- Look up the MCP server's discovered capabilities to select appropriate
+  tools — the agent figures out which tools to enable based on the role
+- Determine read-only vs. destructive tool boundaries from the role description
+
+## Documentation Patterns in Planton Repositories
+
+When mentioning what the Stigmer agent should explore, reference these
+**patterns** (not paths) that exist across Planton repos:
+
+| Pattern | What It Is |
+|---------|-----------|
+| `what-is-*` docs | Concept documentation articles explaining platform features |
+| `_changelog/` entries | Architectural records with problem/solution/design decisions |
+| Proto API definitions | Protobuf schemas defining exact resource fields and types |
+| Production examples | Real deployed configurations showing patterns in practice |
+| README.md files | Per-component documentation throughout the repo |

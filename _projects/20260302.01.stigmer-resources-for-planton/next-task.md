@@ -89,15 +89,42 @@ When starting a new session:
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 0 | Repository scaffold + Stigmer manifest | Done |
-| 1 | Planton MCP Server definition | In Progress |
+| 1 | Planton MCP Server definition | Done |
 | 2 | Cloud Resource Assistant (agent + skill) | Pending |
 | 3 | Stack Job Troubleshooter (agent + skill) | Pending |
-| 4 | Infra Chart Composer (agent + skill) | Pending |
+| 4 | Infra Chart Composer (agent + skill) | In Progress |
 | 5 | Planton Onboarding Guide (agent + skill) | Pending |
 | 6 | Service Pipeline Debugger (agent + skill) | Pending |
 | 7 | Tooling, automation, final README | Pending |
 
 ## Session History
+
+### Session 3: Phase 4 — Infra Chart Composer Tool Scripts (2026-03-08)
+
+**Created tool scripts and conventions rule for the Infra Chart Composer agent.**
+
+**What was delivered:**
+
+1. **`tools/03_draft-infra-chart-composer-skill.sh`** — Runs `stigmer draft skill` with the Planton monorepo as workspace. Prompt is discovery-oriented: describes the agent's role and tells the skill-creator to explore what-is docs, real chart examples, changelogs, and proto APIs in the workspace.
+
+2. **`tools/04_draft-infra-chart-composer-agent.sh`** — Runs `stigmer draft agent` with agent-fleet as workspace. Reads the generated skill and MCP server YAML, discovers available tools from MCP server capabilities, and selects appropriate read-only tools for the composer role.
+
+3. **`.cursor/rules/generate-stigmer-draft-scripts.mdc`** — Cursor rule that codifies conventions for generating stigmer draft scripts, so future agents can be created without re-explaining the principles.
+
+**Key Decisions Made:**
+- Separate scripts per `stigmer draft` command (skill and agent in distinct files)
+- Prompts are intent-driven and discovery-oriented — no hardcoded paths, tool lists, or field structures
+- The Stigmer agent explores the workspace to discover documentation patterns (what-is docs, changelogs, proto APIs, production examples)
+- Agent tool selection is determined by the agent-creator from MCP server discovered capabilities, not prescribed in the prompt
+- Skipping Phases 2-3 to work on Phase 4 first
+
+**Files Changed/Created:**
+- `tools/03_draft-infra-chart-composer-skill.sh` — New skill draft script
+- `tools/04_draft-infra-chart-composer-agent.sh` — New agent draft script
+- `.cursor/rules/generate-stigmer-draft-scripts.mdc` — New convention rule
+- `_projects/.../next-task.md` — Updated status
+
+---
 
 ### Session 2: Phase 1 Tool Script (2026-03-03)
 
@@ -137,27 +164,28 @@ When starting a new session:
 ## Current Status
 
 **Created**: 2026-03-02
-**Current Task**: Phase 1 — Planton MCP Server Definition
-**Status**: In Progress — tool script created, awaiting manual execution of `./tools/00_create-planton-mcp-server.sh`
+**Current Task**: Phase 4 — Infra Chart Composer (agent + skill)
+**Status**: In Progress — tool scripts created, awaiting manual execution
 
 **Current step:**
 - Done: Phase 0 — Repository scaffold + Stigmer manifest (2026-03-02)
-- Done: Phase 1 tool script created (2026-03-03)
-- Next: **Run tool script** to generate `mcp-servers/planton.yaml`, then review and validate
+- Done: Phase 1 — MCP server definition generated and validated
+- In Progress: Phase 4 — Infra Chart Composer tool scripts ready
+- Next: **Run `./tools/03_draft-infra-chart-composer-skill.sh`**, review the generated skill, then run `./tools/04_draft-infra-chart-composer-agent.sh`
 
 ## Objectives for Next Session
 
-**Option A (Recommended):** Execute `./tools/00_onboard-planton-mcp-server.sh`, review the generated McpServer YAML, validate with `stigmer apply --dry-run`, run discovery, and refine. Then proceed to Phase 2 (Cloud Resource Assistant).
+**Option A (Recommended):** Run the skill draft script, review generated SKILL.md and references, then run the agent draft script, review the agent YAML, and validate.
 
-**Option B:** Skip to Phase 2 if the McpServer YAML was already generated and validated outside this workflow.
+**Option B:** Iterate on the tool script prompts if the generated output needs adjustments.
 
-**Option C:** Revise the tool script if the initial generation result needs prompt adjustments.
+**Option C:** Proceed to Phase 2 (Cloud Resource Assistant) or Phase 3 (Stack Job Troubleshooter) using the same script generation pattern.
 
 ## Quick Commands
 
 After loading context:
-- "Run Phase 1 tool" — Execute the MCP server generation script
-- "Continue to Phase 2" — Start Cloud Resource Assistant agent + skill
+- "Run Phase 4 skill draft" — Execute `./tools/03_draft-infra-chart-composer-skill.sh`
+- "Run Phase 4 agent draft" — Execute `./tools/04_draft-infra-chart-composer-agent.sh`
 - "Show project status" — Get overview of progress
 - "Create checkpoint" — Save current progress
 
