@@ -1,0 +1,150 @@
+apiVersion: agentic.stigmer.ai/v1
+kind: McpServer
+metadata:
+  name: mcp-server-planton
+  org: default
+spec:
+  description: >
+    Connects AI agents to the Planton cloud platform via gRPC, exposing
+    100 tools that span the full product surface across 17 cloud providers
+    and 362 resource kinds. Capabilities include: cloud resource lifecycle
+    (create, update, delete, destroy, lock management, env var extraction);
+    stack-job observability and control (observe provisioning outcomes,
+    retry failures, cancel or approve jobs, pre-validate prerequisites);
+    InfraChart template browsing; InfraProject lifecycle management;
+    InfraPipeline monitoring, triggering, and gate resolution; dependency
+    graph analysis and blast-radius assessment; Config Manager for
+    plaintext variables and encrypted secrets with full version history;
+    audit and version history; context discovery (organizations and
+    environments); presets and catalog browsing; service lifecycle and
+    CI/CD pipelines; service variable and secret groups; DNS domain
+    management; and Tekton pipeline and task management. Two read-only
+    MCP resources drive schema-aware discovery before any tool call:
+    cloud-resource-kinds://catalog (all 362 supported kinds grouped by
+    provider) and cloud-resource-schema://{kind} (full JSON schema for a
+    specific kind including field types, validation rules, and defaults).
+    The server is a stateless protocol bridge — every tool call opens a
+    short-lived TLS gRPC connection to the Planton backend and returns
+    the result.
+  stdio:
+    command: go
+    args:
+      - run
+      - github.com/plantonhq/mcp-server-planton/cmd/mcp-server-planton@v1.0.15
+  env_spec:
+    data:
+      PLANTON_API_KEY:
+        description: >
+          Planton API key used to authenticate all gRPC calls to the
+          Planton backend. Required in stdio transport mode. Generate one
+          at Console > Profile > API Keys > Create Key.
+        is_secret: true
+      PLANTON_ENVIRONMENT:
+        description: >
+          Target Planton backend environment. Accepted values: live
+          (default, routes to api.live.planton.ai:443), test (routes to
+          api.test.planton.cloud:443), or local (routes to
+          localhost:8080). Omit to use the live production environment.
+        is_secret: false
+      PLANTON_APIS_GRPC_ENDPOINT:
+        description: >
+          Explicit gRPC dial target override (e.g.
+          "api.live.planton.ai:443"). Takes precedence over
+          PLANTON_ENVIRONMENT when set. Only needed for custom or
+          self-hosted Planton deployments; omit for standard cloud
+          environments.
+        is_secret: false
+      PLANTON_MCP_LOG_LEVEL:
+        description: >
+          Minimum log severity emitted by the server process. Accepted
+          values: debug, info (default), warn, error. Set to debug to
+          trace every gRPC call during troubleshooting.
+        is_secret: false
+      PLANTON_MCP_LOG_FORMAT:
+        description: >
+          Structured log encoding format. Accepted values: text (default,
+          human-readable) or json (machine-readable, recommended for log
+          aggregation pipelines).
+        is_secret: false
+  default_tool_approvals:
+    # ── Cloud Resource Lifecycle ──────────────────────────────────────────
+    # delete: removes the resource record from Planton control plane
+    - tool_name: delete_cloud_resource
+      message: "Delete cloud resource {{args.resource_id}} (kind: {{args.resource_kind}})"
+    # destroy: tears down live infrastructure — irreversible, may incur data loss
+    - tool_name: destroy_cloud_resource
+      message: "Destroy live infrastructure for {{args.resource_id}} (kind: {{args.resource_kind}})"
+    # lock: blocks further changes to a resource; can disrupt ongoing operations
+    - tool_name: lock_cloud_resource
+      message: "Lock cloud resource {{args.resource_id}} (prevents all further changes)"
+    # unlock: re-enables changes; used after a deliberate freeze — must be intentional
+    - tool_name: unlock_cloud_resource
+      message: "Unlock cloud resource {{args.resource_id}} (re-enables mutations)"
+
+    # ── Stack-Job Control ─────────────────────────────────────────────────
+    # cancel: halts a running provisioning job mid-flight — may leave infra in partial state
+    - tool_name: cancel_stack_job
+      message: "Cancel stack job {{args.stack_job_id}} — may leave infrastructure in a partial state"
+    # approve: gates a job that is paused waiting for human sign-off
+    - tool_name: approve_stack_job
+      message: "Approve stack job {{args.stack_job_id}} to continue execution"
+
+    # ── InfraProject Lifecycle ────────────────────────────────────────────
+    - tool_name: delete_infra_project
+      message: "Delete InfraProject {{args.infra_project_id}}"
+    - tool_name: destroy_infra_project
+      message: "Destroy all infrastructure managed by InfraProject {{args.infra_project_id}}"
+
+    # ── InfraPipeline ─────────────────────────────────────────────────────
+    # triggering a pipeline starts a potentially long-running and costly provisioning run
+    - tool_name: trigger_infra_pipeline
+      message: "Trigger InfraPipeline {{args.infra_pipeline_id}}"
+    # resolve gate: unblocks a paused stage; downstream stages execute immediately
+    - tool_name: resolve_infra_pipeline_gate
+      message: "Resolve gate for InfraPipeline {{args.infra_pipeline_id}} (stage: {{args.stage_name}})"
+    - tool_name: delete_infra_pipeline
+      message: "Delete InfraPipeline {{args.infra_pipeline_id}}"
+
+    # ── Config Manager — Secrets ──────────────────────────────────────────
+    # writing or deleting encrypted secrets is irreversible without version restore
+    - tool_name: upsert_secret_config_value
+      message: "Upsert encrypted secret {{args.key}} in config store {{args.config_store_id}}"
+    - tool_name: delete_secret_config_value
+      message: "Delete encrypted secret {{args.key}} from config store {{args.config_store_id}}"
+    - tool_name: delete_config_store
+      message: "Delete config store {{args.config_store_id}} (all variables and secrets)"
+
+    # ── Service Lifecycle ─────────────────────────────────────────────────
+    - tool_name: delete_service
+      message: "Delete service {{args.service_id}}"
+    - tool_name: destroy_service
+      message: "Destroy all infrastructure for service {{args.service_id}}"
+
+    # ── Service Variable & Secret Groups ─────────────────────────────────
+    - tool_name: delete_service_variable_group
+      message: "Delete variable group {{args.variable_group_id}} for service {{args.service_id}}"
+    - tool_name: delete_service_secret_group
+      message: "Delete secret group {{args.secret_group_id}} for service {{args.service_id}}"
+    - tool_name: upsert_service_secret
+      message: "Upsert secret {{args.key}} in secret group {{args.secret_group_id}}"
+    - tool_name: delete_service_secret
+      message: "Delete secret {{args.key}} from secret group {{args.secret_group_id}}"
+
+    # ── DNS Domain Management ─────────────────────────────────────────────
+    # deleting a DNS domain removes all records and may cause immediate outages
+    - tool_name: delete_dns_domain
+      message: "Delete DNS domain {{args.dns_domain_id}} — may cause service outages"
+    - tool_name: delete_dns_record
+      message: "Delete DNS record {{args.dns_record_id}} from domain {{args.dns_domain_id}}"
+
+    # ── CI/CD Pipelines ───────────────────────────────────────────────────
+    - tool_name: trigger_service_pipeline
+      message: "Trigger CI/CD pipeline for service {{args.service_id}}"
+    - tool_name: delete_service_pipeline
+      message: "Delete CI/CD pipeline {{args.pipeline_id}} for service {{args.service_id}}"
+
+    # ── Tekton Pipeline & Task Management ────────────────────────────────
+    - tool_name: delete_tekton_pipeline
+      message: "Delete Tekton pipeline {{args.pipeline_id}}"
+    - tool_name: delete_tekton_task
+      message: "Delete Tekton task {{args.task_id}}"

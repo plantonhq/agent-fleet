@@ -12,7 +12,7 @@
 # Prerequisites:
 #   - stigmer CLI in PATH
 #   - skills/cloud-resource-assistant/SKILL.md exists (from step 05)
-#   - mcp-servers/planton.yaml exists (from step 00)
+#   - mcp-servers/mcp-server-planton.yaml exists (from step 00)
 #
 # Usage:
 #   ./tools/06_draft-cloud-resource-assistant-agent.sh
@@ -40,8 +40,8 @@ if [ ! -f "${REPO_ROOT}/skills/cloud-resource-assistant/SKILL.md" ]; then
     exit 1
 fi
 
-if [ ! -f "${REPO_ROOT}/mcp-servers/planton.yaml" ]; then
-    echo "ERROR: mcp-servers/planton.yaml not found"
+if [ ! -f "${REPO_ROOT}/mcp-servers/mcp-server-planton.yaml" ]; then
+    echo "ERROR: mcp-servers/mcp-server-planton.yaml not found"
     echo "Run ./tools/00_onboard-planton-mcp-server.sh first."
     exit 1
 fi

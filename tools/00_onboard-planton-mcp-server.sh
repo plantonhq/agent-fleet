@@ -82,7 +82,10 @@ readonly _MSG_FILE="$(mktemp)"
 trap 'rm -f "${_MSG_FILE}"' EXIT
 
 cat > "${_MSG_FILE}" <<PROMPT
-Create a Stigmer McpServer YAML named "planton".
+Create a Stigmer McpServer YAML named "mcp-server-planton".
+
+The metadata.name MUST be "mcp-server-planton" — this is the canonical
+slug for this MCP server across the entire fleet.
 
 Transport: stdio using go run with a pinned version tag.
   command: go
@@ -98,7 +101,7 @@ Read these files to understand what it does and what it needs:
 Write an accurate description and env_spec based on what you find.
 Do not include default_tool_approvals — those will be generated after discovery.
 
-Write the resulting YAML file to mcp-servers/planton.yaml in the agent-fleet workspace.
+Write the resulting YAML file to mcp-servers/mcp-server-planton.yaml in the agent-fleet workspace.
 PROMPT
 
 stigmer draft mcp-server \
@@ -108,5 +111,5 @@ stigmer draft mcp-server \
 
 echo ""
 echo "Next steps:"
-echo "  1. Review mcp-servers/planton.yaml"
+echo "  1. Review mcp-servers/mcp-server-planton.yaml"
 echo "  2. Run: ./tools/01_generate-approval-policy.sh"

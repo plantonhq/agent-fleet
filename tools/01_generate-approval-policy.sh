@@ -7,14 +7,18 @@
 # tools and resources), then uses `stigmer draft mcp-server` to generate
 # default_tool_approvals based on the discovered capabilities.
 #
-# The mcp-server-creator agent queries the backend for the planton
-# MCP server's discovered tools and determines which operations need human
-# approval based on the nature of each tool. The agent writes the updated
-# YAML directly to mcp-servers/planton.yaml in the agent-fleet workspace.
+# Scope: This script operates EXCLUSIVELY on the mcp-server-planton
+# MCP server. It does not query or reference any other MCP server.
+#
+# The mcp-server-creator agent queries the backend for the
+# mcp-server-planton discovered tools and determines which operations
+# need human approval based on the nature of each tool. The agent writes
+# the updated YAML directly to mcp-servers/mcp-server-planton.yaml in the
+# agent-fleet workspace.
 #
 # Prerequisites:
 #   - stigmer CLI in PATH
-#   - mcp-servers/planton.yaml exists (from 00_onboard-planton-mcp-server.sh)
+#   - mcp-servers/mcp-server-planton.yaml exists (from 00_onboard-planton-mcp-server.sh)
 #   - PLANTON_API_KEY configured for discovery to connect to the server
 #
 # Usage:
@@ -26,7 +30,7 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-readonly MCP_SERVER_YAML="${REPO_ROOT}/mcp-servers/planton.yaml"
+readonly MCP_SERVER_YAML="${REPO_ROOT}/mcp-servers/mcp-server-planton.yaml"
 
 # ---------------------------------------------------------------------------
 # Dependency checks
@@ -66,15 +70,41 @@ readonly _MSG_FILE="$(mktemp)"
 trap 'rm -f "${_MSG_FILE}"' EXIT
 
 cat > "${_MSG_FILE}" <<'PROMPT'
-Generate an updated planton McpServer YAML with default_tool_approvals.
+Generate an updated Planton McpServer YAML with default_tool_approvals.
 
-Look up the discovered capabilities of the planton MCP server.
-Based on the nature of each tool, identify destructive or dangerous operations
-and add default_tool_approvals with clear approval messages.
+IMPORTANT: Only look at the MCP server named "mcp-server-planton".
+Do NOT query, reference, or include details from any other MCP server.
+The only MCP server that exists in this fleet is mcp-server-planton —
+ignore everything else.
 
-Output only apiVersion, kind, metadata, and spec. Do not include status.
+If the discovered tools or resources for mcp-server-planton cannot be found
+(e.g. the server has not been discovered yet, the backend returns no results,
+or the query fails for any reason), do NOT attempt to find the tools by any
+other means — do not search the workspace, do not guess tool names, do not
+look at other MCP servers' data. Simply reply that you could not find the
+discovered capabilities for mcp-server-planton and therefore cannot generate
+the approval policy.
 
-Write the resulting YAML file to mcp-servers/planton.yaml in the agent-fleet workspace.
+Steps:
+1. Retrieve the discovered tools and resources for the mcp-server-planton
+   MCP server from the Stigmer backend.
+2. Classify each tool as read-only (safe) or mutating/destructive (needs approval).
+   Mutating operations include create, update, delete, destroy, lock, unlock,
+   trigger, approve, cancel, upsert, and any action that changes state.
+3. For every mutating or destructive tool, add an entry under
+   spec.default_tool_approvals with:
+     - tool_name: the exact tool name from the discovered capabilities
+     - message: a clear, human-readable sentence describing the action and
+       referencing the relevant arguments using {{args.<field>}} placeholders
+       so reviewers understand what will happen before they approve.
+4. Group the approval entries by domain (e.g. Cloud Resource Lifecycle,
+   Stack-Job Control, Config Manager, etc.) with YAML comments for readability.
+5. Preserve the existing apiVersion, kind, metadata, and spec fields
+   (description, stdio, env_spec) from the current mcp-servers/mcp-server-planton.yaml.
+   Replace only the default_tool_approvals section.
+6. Do NOT include the status section in the output.
+
+Write the resulting YAML to mcp-servers/mcp-server-planton.yaml in the agent-fleet workspace.
 PROMPT
 
 stigmer draft mcp-server \
@@ -84,4 +114,4 @@ stigmer draft mcp-server \
 echo ""
 echo "Next steps:"
 echo "  1. Review the updated McpServer YAML with approval policies"
-echo "  2. Apply: stigmer apply -f mcp-servers/planton.yaml"
+echo "  2. Apply: stigmer apply -f mcp-servers/mcp-server-planton.yaml"
