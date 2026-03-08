@@ -146,6 +146,7 @@ PROMPT
 stigmer draft skill \
     --workspace "$PLANTON_REPO" \
     --workspace "$REPO_ROOT" \
+    --model claude-opus-4.6 \
     -m "$(cat "${_MSG_FILE}")"
 
 echo ""
