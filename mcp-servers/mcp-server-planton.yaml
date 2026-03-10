@@ -60,7 +60,7 @@ spec:
     command: go
     args:
       - run
-      - github.com/plantonhq/mcp-server-planton/cmd/mcp-server-planton@v1.0.15
+      - github.com/plantonhq/mcp-server-planton/cmd/mcp-server-planton@v1.0.16
 
   env_spec:
     data:
